@@ -55,21 +55,22 @@ const FOTOS = [
   "imagenes/foto10.jpeg"
 ];
 
-/* Posición (izquierda%, arriba%) de cada una de las 10 fotos, calculada para
-   que, en conjunto, tracen el CONTORNO de un corazón grande (como en la
-   imagen de referencia: corazoncitos alrededor del borde, con el centro
-   hueco), en vez de rellenar todo el interior. */
+/* Posición (izquierda%, arriba%) de cada una de las 10 fotos, calculada
+   matemáticamente sobre la curva de un corazón y repartida en distancias
+   IGUALES a lo largo de ese contorno (no solo por ángulo), para que las
+   10 fotos se vean parejas y el corazón se reconozca bien, con el centro
+   hueco como en la imagen de referencia. */
 const POSICIONES_CORAZON = [
-  { left: 50, top: 25 },  // hueco superior, entre los dos "lóbulos"
-  { left: 61, top: 9  },  // lóbulo derecho, pico interno
-  { left: 90, top: 12 },  // lóbulo derecho, pico externo
-  { left: 90, top: 45 },  // lado derecho, bajando
-  { left: 61, top: 75 },  // lado derecho, cerca de la punta
-  { left: 50, top: 92 },  // punta inferior del corazón
-  { left: 39, top: 75 },  // lado izquierdo, cerca de la punta
-  { left: 10, top: 45 },  // lado izquierdo, bajando
-  { left: 10, top: 12 },  // lóbulo izquierdo, pico externo
-  { left: 39, top: 9  }   // lóbulo izquierdo, pico interno
+  { left: 50.0, top: 31.1 }, // hueco superior, entre los dos "lóbulos"
+  { left: 65.8, top: 14.0 }, // lóbulo derecho, pico
+  { left: 86.0, top: 25.1 }, // lado derecho, arriba
+  { left: 82.3, top: 48.8 }, // lado derecho, medio
+  { left: 64.7, top: 66.3 }, // lado derecho, bajando a la punta
+  { left: 50.0, top: 86.0 }, // punta inferior del corazón
+  { left: 35.2, top: 66.3 }, // lado izquierdo, bajando a la punta
+  { left: 17.6, top: 48.7 }, // lado izquierdo, medio
+  { left: 14.0, top: 25.0 }, // lado izquierdo, arriba
+  { left: 34.2, top: 14.0 }  // lóbulo izquierdo, pico
 ];
 
 /* Segundo exacto del mp3 en el que quieres que empiece a sonar */
@@ -158,6 +159,26 @@ function cicloFrases(){
   escribir(texto, ()=> borrar(cicloFrases));
 }
 cicloFrases();
+
+/* ============================================================
+   LIGHTBOX: tocar cualquier foto para verla completa
+   ============================================================ */
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxClose = document.getElementById('lightboxClose');
+
+function abrirLightbox(src){
+  lightboxImg.src = src;
+  lightbox.classList.add('show');
+}
+function cerrarLightbox(){
+  lightbox.classList.remove('show');
+}
+lightboxClose.addEventListener('click', cerrarLightbox);
+// tocar el fondo oscuro (fuera de la foto) también cierra
+lightbox.addEventListener('click', (e)=>{
+  if(e.target === lightbox) cerrarLightbox();
+});
 
 /* ============================================================
    NAVEGACIÓN ENTRE PÁGINAS
@@ -287,6 +308,11 @@ const faseMensajes = document.getElementById('fase-mensajes');
 const mensajeGrandeEl = document.getElementById('mensaje-grande');
 const fotoMensajeEl = document.getElementById('foto-mensaje');
 
+// tocar la foto de cada mensaje también la muestra completa
+fotoMensajeEl.addEventListener('click', ()=>{
+  if(fotoMensajeEl.src) abrirLightbox(fotoMensajeEl.src);
+});
+
 function mostrarFaseMensajes(cb){
   let i = 0;
 
@@ -366,6 +392,9 @@ function construirRompecabezas(){
     img.alt = '';
     pieza.appendChild(img);
 
+    // tocar la foto la muestra completa y en su tamaño original
+    pieza.addEventListener('click', ()=> abrirLightbox(img.src));
+
     cont.appendChild(pieza);
     return pieza;
   });
@@ -399,6 +428,13 @@ function construirRompecabezas(){
 
       setTimeout(()=>{
         p.classList.add('en-lugar');
+        // cada foto flota a su propio ritmo, para que el movimiento se vea
+        // natural y no como si todas se movieran sincronizadas
+        const img = p.querySelector('img');
+        const duracion = 2.6 + Math.random()*2.2; // entre 2.6s y 4.8s
+        const retraso = -Math.random()*duracion;   // negativo = ya viene "en marcha"
+        img.style.animationDuration = duracion + 's';
+        img.style.animationDelay = retraso + 's';
         const rect = p.getBoundingClientRect();
         crearChispas(rect.left + rect.width/2, rect.top + rect.height/2);
       }, 1300);

@@ -366,6 +366,14 @@ body{
 /* brillo sutil al encajar cada foto en su lugar */
 .mini-corazon.en-lugar img{
   filter: drop-shadow(0 3px 7px rgba(122,31,61,.45)) saturate(1.15) brightness(1.08);
+  animation-name: flotarFoto;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes flotarFoto{
+  0%{   transform: translateY(0) scale(1); }
+  100%{ transform: translateY(-9px) scale(1.035); }
 }
 
 /* ecualizador decorativo */
@@ -471,6 +479,66 @@ body{
   transition: transform .2s ease;
 }
 #btnMute:hover{ transform: scale(1.1); }
+
+/* =============== LIGHTBOX: ver la foto completa al tocarla =============== */
+.lightbox{
+  position:fixed;
+  inset:0;
+  background:rgba(20,4,10,.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:200;
+  padding: 34px;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .35s ease;
+}
+.lightbox.show{
+  opacity:1;
+  pointer-events:auto;
+}
+.lightbox img{
+  max-width:92vw;
+  max-height:88vh;
+  object-fit:contain;
+  border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.55);
+  transform:scale(.9);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.lightbox.show img{
+  transform:scale(1);
+}
+.lightbox-cerrar{
+  position:absolute;
+  top:18px;
+  right:18px;
+  width: clamp(38px, 9vw, 44px);
+  height: clamp(38px, 9vw, 44px);
+  border:none;
+  border-radius:50%;
+  background:rgba(255,255,255,.18);
+  color:#fff;
+  font-size:1.2rem;
+  line-height:1;
+  cursor:pointer;
+  backdrop-filter: blur(6px);
+  transition: background .2s ease, transform .2s ease;
+}
+.lightbox-cerrar:hover{ background:rgba(255,255,255,.32); transform:scale(1.08); }
+
+/* las fotos que se pueden tocar para agrandar muestran un cursor de mano
+   y un leve "hundimiento" al presionarlas, para que se note que son tocables */
+.mini-corazon, .foto-mensaje{
+  cursor:pointer;
+}
+.mini-corazon:active img{
+  filter: brightness(.9);
+}
+.foto-mensaje:active{
+  transform: scale(.96);
+}
 
 @media (max-width:480px){
   .glass-card{ padding: 30px 18px; }
