@@ -34,7 +34,7 @@ const MENSAJES_FINALES = [
 ];
 
 /* Frase única y grande que se muestra ARRIBA del corazón mientras se arma */
-const FRASE_ROMPECABEZAS = "Pieza por pieza, como este corazón";
+const FRASE_ROMPECABEZAS = "De todas las historias que podía vivir ,elegirte a ti fue mi parte favorita ,volvamos a armar juntos";
 
 const MENSAJE_FIN_CANCION = "Fin ❤";
 
@@ -273,6 +273,18 @@ function lanzarConfeti(origenEl){
    MÚSICA: empieza a sonar desde SEGUNDO_INICIO_MUSICA
    ============================================================ */
 const audioEl = document.getElementById('bgMusic');
+
+/* Pausar la música sola cuando cambian de pestaña, minimizan o cierran,
+   y que retome justo donde iba al volver (solo si ya estaba sonando). */
+let musicaSonabaAntes = false;
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){
+    musicaSonabaAntes = !audioEl.paused;
+    audioEl.pause();
+  } else if(musicaSonabaAntes){
+    audioEl.play().catch(()=>{});
+  }
+});
 
 function reproducirDesdeMinuto(){
   const fijarTiempo = ()=>{
