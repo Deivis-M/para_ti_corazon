@@ -72,9 +72,9 @@ function crearParticula(){
   fondoParticulas.appendChild(p);
   setTimeout(()=> p.remove(), dur*1000 + 200);
 }
-setInterval(crearParticula, 480);
+setInterval(crearParticula, 650);
 // ráfaga inicial más llamativa en la pantalla principal
-for(let i=0;i<16;i++) setTimeout(crearParticula, i*140);
+for(let i=0;i<10;i++) setTimeout(crearParticula, i*160);
 
 /* ============================================================
    BARRA DE PROGRESO

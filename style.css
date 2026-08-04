@@ -310,7 +310,7 @@ body{
   left:50%; top: clamp(220px, 58vw, 400px);
   transform:translate(-50%,-50%);
   background: radial-gradient(circle, rgba(255,107,139,.55), transparent 70%);
-  filter: blur(30px);
+  filter: blur(22px);
   animation: pulsoGlow 2.4s ease-in-out infinite;
   z-index:-1;
 }
@@ -331,6 +331,8 @@ body{
   transition: transform 1.3s cubic-bezier(.34,1.56,.64,1);
   transform-box: fill-box;
   transform-origin: center;
+  /* sombra liviana y estática (no animada) para que se vea con profundidad sin sobrecargar el navegador del celular */
+  filter: drop-shadow(0 2px 4px rgba(122,31,61,.35));
 }
 .pieza-svg image{
   transition: filter .4s ease;
@@ -346,16 +348,9 @@ body{
   pointer-events:none;
 }
 
+/* brillo sutil y estático al encajar cada pieza (sin animar "filter" para evitar parpadeos en móviles) */
 .pieza-svg.en-lugar image{
-  filter: saturate(1.15) brightness(1.06) drop-shadow(0 0 5px rgba(255,255,255,.55));
-}
-.pieza-svg.en-lugar{
-  animation: piezaBrillo .65s ease;
-}
-@keyframes piezaBrillo{
-  0%{ filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
-  35%{ filter: drop-shadow(0 0 16px rgba(255,255,255,.9)); }
-  100%{ filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+  filter: saturate(1.15) brightness(1.08);
 }
 
 /* ecualizador decorativo */
