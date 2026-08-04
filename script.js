@@ -38,16 +38,38 @@ const FRASE_ROMPECABEZAS = "Pieza por pieza, como este corazón";
 
 const MENSAJE_FIN_CANCION = "Fin ❤";
 
-/* Nombres de fotos: EXACTAMENTE 6, una por cada pieza del corazón.
+/* Nombres de fotos: EXACTAMENTE 10 (5 se usan de vista previa en las frases,
+   las 10 se usan para armar el corazón final).
    Deben estar dentro de una carpeta llamada "imagenes" junto a index.html.
    Si tus fotos no son .jpg (por ejemplo .jpeg o .png), cambia la extensión aquí. */
 const FOTOS = [
-  "imagenes/foto1.jpeg", // pieza arriba-izquierda
-  "imagenes/foto2.jpeg", // pieza arriba-derecha
-  "imagenes/foto3.jpeg", // pieza medio-izquierda
-  "imagenes/foto4.jpeg", // pieza medio-derecha
-  "imagenes/foto5.jpeg", // pieza abajo-izquierda
-  "imagenes/foto6.jpeg"  // pieza abajo-derecha
+  "imagenes/foto1.jpeg",
+  "imagenes/foto2.jpeg",
+  "imagenes/foto3.jpeg",
+  "imagenes/foto4.jpeg",
+  "imagenes/foto5.jpeg",
+  "imagenes/foto6.jpeg",
+  "imagenes/foto7.jpeg",
+  "imagenes/foto8.jpeg",
+  "imagenes/foto9.jpeg",
+  "imagenes/foto10.jpeg"
+];
+
+/* Posición (izquierda%, arriba%) de cada una de las 10 fotos, calculada para
+   que, en conjunto, tracen el CONTORNO de un corazón grande (como en la
+   imagen de referencia: corazoncitos alrededor del borde, con el centro
+   hueco), en vez de rellenar todo el interior. */
+const POSICIONES_CORAZON = [
+  { left: 50, top: 25 },  // hueco superior, entre los dos "lóbulos"
+  { left: 61, top: 9  },  // lóbulo derecho, pico interno
+  { left: 90, top: 12 },  // lóbulo derecho, pico externo
+  { left: 90, top: 45 },  // lado derecho, bajando
+  { left: 61, top: 75 },  // lado derecho, cerca de la punta
+  { left: 50, top: 92 },  // punta inferior del corazón
+  { left: 39, top: 75 },  // lado izquierdo, cerca de la punta
+  { left: 10, top: 45 },  // lado izquierdo, bajando
+  { left: 10, top: 12 },  // lóbulo izquierdo, pico externo
+  { left: 39, top: 9  }   // lóbulo izquierdo, pico interno
 ];
 
 /* Segundo exacto del mp3 en el que quieres que empiece a sonar */
@@ -263,6 +285,7 @@ agregarRipple(btnSi);
    ============================================================ */
 const faseMensajes = document.getElementById('fase-mensajes');
 const mensajeGrandeEl = document.getElementById('mensaje-grande');
+const fotoMensajeEl = document.getElementById('foto-mensaje');
 
 function mostrarFaseMensajes(cb){
   let i = 0;
@@ -279,14 +302,20 @@ function mostrarFaseMensajes(cb){
       return;
     }
     const texto = MENSAJES_FINALES[i];
+    const foto = FOTOS[i % FOTOS.length];
     i++;
+
     mensajeGrandeEl.style.transition = 'opacity .6s ease, transform .6s ease';
     mensajeGrandeEl.style.opacity = '0';
     mensajeGrandeEl.style.transform = 'translateY(12px)';
+    fotoMensajeEl.classList.remove('show');
+
     setTimeout(()=>{
+      fotoMensajeEl.src = foto;
       mensajeGrandeEl.textContent = texto;
       mensajeGrandeEl.style.opacity = '1';
       mensajeGrandeEl.style.transform = 'translateY(0)';
+      requestAnimationFrame(()=> fotoMensajeEl.classList.add('show'));
       setTimeout(siguienteMensaje, 2900);
     }, 350);
   }
@@ -295,9 +324,8 @@ function mostrarFaseMensajes(cb){
 }
 
 /* ============================================================
-   PÁGINA 3 · FASE 2: ARMAR EL ROMPECABEZAS (piezas SVG reales)
+   PÁGINA 3 · FASE 2: ARMAR EL CORAZÓN DE 10 MINI-FOTOS
    ============================================================ */
-const ORDEN_PIEZAS = ['TL','TR','ML','MR','BL','BR'];
 
 function mostrarFaseRompecabezas(){
   const faseRompecabezas = document.getElementById('fase-rompecabezas');
@@ -322,50 +350,62 @@ function crearChispas(x, y){
 }
 
 function construirRompecabezas(){
-  // asignar las fotos a cada pieza
-  ORDEN_PIEZAS.forEach((id, i)=>{
-    const img = document.getElementById('img' + id);
-    img.setAttribute('href', FOTOS[i % FOTOS.length]);
-    img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', FOTOS[i % FOTOS.length]);
+  const cont = document.getElementById('corazonMosaico');
+  cont.innerHTML = '';
+
+  // crear las 10 fotos con forma de corazón, ya ubicadas en su posición final
+  // (sobre el contorno del corazón grande, dejando el centro hueco)
+  const piezas = POSICIONES_CORAZON.map((pos, i)=>{
+    const pieza = document.createElement('div');
+    pieza.className = 'mini-corazon';
+    pieza.style.left = pos.left + '%';
+    pieza.style.top  = pos.top + '%';
+
+    const img = document.createElement('img');
+    img.src = FOTOS[i % FOTOS.length];
+    img.alt = '';
+    pieza.appendChild(img);
+
+    cont.appendChild(pieza);
+    return pieza;
   });
 
-  // dispersar cada pieza a una posición aleatoria fuera de su lugar (más dramático)
-  const grupos = ORDEN_PIEZAS.map(id => document.getElementById('pieza' + id));
-  grupos.forEach(g=>{
+  // dispersar cada foto a una posición aleatoria fuera de su lugar
+  piezas.forEach(p=>{
     const dx = (Math.random()*220 - 110);
     const dy = (Math.random()*220 - 110);
     const rot = (Math.random()*140 - 70);
-    g.classList.remove('en-lugar');
-    g.style.transition = 'none';
-    g.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg) scale(0.85)`;
-    g.style.opacity = '0';
+    p.classList.remove('en-lugar');
+    p.style.transition = 'none';
+    p.style.transform = `translate(-50%,-50%) translate(${dx}px, ${dy}px) rotate(${rot}deg) scale(0.6)`;
+    p.style.opacity = '0';
     // forzar reflow para que la siguiente transición se note
-    void g.getBoundingClientRect();
+    void p.getBoundingClientRect();
   });
 
   // aparecen y empiezan a "flotar" desordenadas
   setTimeout(()=>{
-    grupos.forEach((g)=>{
-      g.style.transition = 'opacity .5s ease';
-      g.style.opacity = '1';
+    piezas.forEach((p)=>{
+      p.style.transition = 'opacity .5s ease';
+      p.style.opacity = '1';
     });
   }, 80);
 
-  // luego de un momento, cada pieza vuela a su lugar (con un pequeño retraso escalonado)
-  grupos.forEach((g, i)=>{
+  // luego de un momento, cada mini-corazón vuela a su lugar (con un pequeño retraso escalonado)
+  piezas.forEach((p, i)=>{
     setTimeout(()=>{
-      g.style.transition = 'transform 1.3s cubic-bezier(.34,1.56,.64,1), opacity .4s ease';
-      g.style.transform = 'translate(0px,0px) rotate(0deg) scale(1)';
+      p.style.transition = 'transform 1.3s cubic-bezier(.34,1.56,.64,1), opacity .4s ease';
+      p.style.transform = 'translate(-50%,-50%) translate(0px,0px) rotate(0deg) scale(1)';
 
       setTimeout(()=>{
-        g.classList.add('en-lugar');
-        const rect = g.getBoundingClientRect();
+        p.classList.add('en-lugar');
+        const rect = p.getBoundingClientRect();
         crearChispas(rect.left + rect.width/2, rect.top + rect.height/2);
       }, 1300);
-    }, 700 + i * 280);
+    }, 500 + i * 220);
   });
 
-  const tiempoTotal = 700 + grupos.length * 280 + 1700;
+  const tiempoTotal = 500 + piezas.length * 220 + 1700;
   setTimeout(()=>{
     audioEl.addEventListener('ended', ()=>{
       const finEl = document.getElementById('mensaje-fin');
