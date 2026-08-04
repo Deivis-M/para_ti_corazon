@@ -34,7 +34,7 @@ const MENSAJES_FINALES = [
 ];
 
 /* Frase única y grande que se muestra ARRIBA del corazón mientras se arma */
-const FRASE_ROMPECABEZAS = "De todas las historias que podía vivir ,elegirte a ti fue mi parte favorita ,volvamos a armar juntos";
+const FRASE_ROMPECABEZAS = "Ni importa cuántos caminos existan,volver a elegirte siempre será mi mejor desición.Construyamos juntos lo que viene";
 
 const MENSAJE_FIN_CANCION = "Fin ❤";
 
